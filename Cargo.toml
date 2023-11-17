@@ -1,0 +1,12 @@
+[package]
+name = "mitte_riscv"
+version = "0.1.0"
+authors = ["bytewise <bytewise@fastmail.com>"]
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+[dependencies]
+mitte_core = { git = "https://github.com/bytwise/mitte_core", rev = "09e54d1" }
+
+[dev-dependencies]
+capstone = "0.11.0"

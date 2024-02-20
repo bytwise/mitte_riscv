@@ -159,7 +159,7 @@ pub fn lui(rd: Register, imm: i8) -> u16 {
 pub fn srli(rd: CRegister, shamt: u8) -> u16 {
     encode!(
         i3(0b100),
-        i1((shamt >> 5) as u32),
+        i1(0),
         i2(0b00),
         i3(rd as u32),
         i5(shamt as u32),
@@ -171,7 +171,7 @@ pub fn srli(rd: CRegister, shamt: u8) -> u16 {
 pub fn srai(rd: CRegister, shamt: u8) -> u16 {
     encode!(
         i3(0b100),
-        i1((shamt >> 5) as u32),
+        i1(0),
         i2(0b01),
         i3(rd as u32),
         i5(shamt as u32),
@@ -228,7 +228,7 @@ pub fn bnez(rs: CRegister, offset: i16) -> u16 {
 
 #[inline]
 pub fn slli(rd: Register, shamt: u8) -> u16 {
-    CiType { op: 0b10, funct3: 0b000, rd, imm: shamt as i8 }.encode()
+    CiType { op: 0b10, funct3: 0b000, rd, imm: shamt as i8 & 0x1f }.encode()
 }
 
 #[inline]

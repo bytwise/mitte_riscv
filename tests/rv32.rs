@@ -359,21 +359,21 @@ fn test_c_or() {
 #[test]
 fn test_c_slli() {
     test2_filter("c.slli", rv32c::slli, |rd, shamt| {
-        rd != Zero && shamt > 0 && shamt < 0x40
+        rd != Zero && shamt > 0 && shamt < 0x20
     });
 }
 
 #[test]
 fn test_c_srai() {
     test2_filter("c.srai", rv32c::srai, |_, shamt| {
-        shamt > 0 && shamt < 0x40
+        shamt > 0 && shamt < 0x20
     });
 }
 
 #[test]
 fn test_c_srli() {
     test2_filter("c.srli", rv32c::srli, |_, shamt| {
-        shamt > 0 && shamt < 0x40
+        shamt > 0 && shamt < 0x20
     });
 }
 

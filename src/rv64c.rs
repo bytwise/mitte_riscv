@@ -58,6 +58,9 @@ pub trait Emit: EmitSlice {
         emit_c_ldsp(rs: Register, offset: u8) => ldsp;
         emit_c_sd(rd: CRegister, base: CRegister, offset: u8) => sd;
         emit_c_sdsp(rs: Register, offset: u8) => sdsp;
+        emit_c_slli(rd: Register, shamt: u8) => slli;
+        emit_c_srai(rd: CRegister, shamt: u8) => srai;
+        emit_c_srli(rd: CRegister, shamt: u8) => srli;
         emit_c_subw(rd: CRegister, rs: CRegister) => subw;
     }
 
@@ -81,9 +84,6 @@ pub trait Emit: EmitSlice {
         emit_c_mv(rd: Register, rs: Register) => rv32c::mv;
         emit_c_nop() => rv32c::nop;
         emit_c_or(rd: CRegister, rs: CRegister) => rv32c::or;
-        emit_c_slli(rd: Register, shamt: u8) => rv32c::slli;
-        emit_c_srai(rd: CRegister, shamt: u8) => rv32c::srai;
-        emit_c_srli(rd: CRegister, shamt: u8) => rv32c::srli;
         emit_c_sub(rd: CRegister, rs: CRegister) => rv32c::sub;
         emit_c_sw(rd: CRegister, base: CRegister, offset: u8) => rv32c::sw;
         emit_c_swsp(rs: Register, offset: u8) => rv32c::swsp;
@@ -124,6 +124,30 @@ pub fn addiw(rd: Register, imm: i8) -> u16 {
 }
 
 #[inline]
+pub fn srli(rd: CRegister, shamt: u8) -> u16 {
+    encode!(
+        i3(0b100),
+        i1((shamt >> 5) as u32),
+        i2(0b00),
+        i3(rd as u32),
+        i5(shamt as u32),
+        i2(0b01)
+    ) as u16
+}
+
+#[inline]
+pub fn srai(rd: CRegister, shamt: u8) -> u16 {
+    encode!(
+        i3(0b100),
+        i1((shamt >> 5) as u32),
+        i2(0b01),
+        i3(rd as u32),
+        i5(shamt as u32),
+        i2(0b01)
+    ) as u16
+}
+
+#[inline]
 pub fn subw(rd: CRegister, rs: CRegister) -> u16 {
     CaType { op: 0b01, funct2: 0b00, funct6: 0b100111, rd, rs }.encode()
 }
@@ -131,6 +155,11 @@ pub fn subw(rd: CRegister, rs: CRegister) -> u16 {
 #[inline]
 pub fn addw(rd: CRegister, rs: CRegister) -> u16 {
     CaType { op: 0b01, funct2: 0b01, funct6: 0b100111, rd, rs }.encode()
+}
+
+#[inline]
+pub fn slli(rd: Register, shamt: u8) -> u16 {
+    CiType { op: 0b10, funct3: 0b000, rd, imm: shamt as i8 & 0x3f }.encode()
 }
 
 #[inline]

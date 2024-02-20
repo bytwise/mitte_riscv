@@ -58,6 +58,7 @@ pub trait Emit: EmitSlice {
         emit_c_ldsp(rs: Register, offset: u8) => ldsp;
         emit_c_sd(rd: CRegister, base: CRegister, offset: u8) => sd;
         emit_c_sdsp(rs: Register, offset: u8) => sdsp;
+        emit_c_sext_w(rd: Register) => sext_w;
         emit_c_slli(rd: Register, shamt: u8) => slli;
         emit_c_srai(rd: CRegister, shamt: u8) => srai;
         emit_c_srli(rd: CRegister, shamt: u8) => srli;
@@ -183,4 +184,9 @@ pub fn sdsp(rs: Register, offset: u8) -> u16 {
         i5(rs as u32),
         i2(0b10)
     ) as u16
+}
+
+#[inline]
+pub fn sext_w(rd: Register) -> u16 {
+    addiw(rd, 0)
 }

@@ -110,6 +110,17 @@ fn test2_filter<A1, A2, R, const N: usize>(
 }
 
 #[track_caller]
+fn test2_format<A1, A2, R, const N: usize>(
+    mnemonic: &str,
+    f: fn(A1, A2) -> R,
+    s: impl Fn(&str, &str) -> String
+)
+    where A1: TestCases, A2: TestCases, R: ToLeBytes<Bytes=[u8; N]>
+{
+    test2_format_filter(mnemonic, f, s, |_, _| true);
+}
+
+#[track_caller]
 fn test2<A1, A2, R, const N: usize>(mnemonic: &str, f: fn(A1, A2) -> R)
     where A1: TestCases, A2: TestCases, R: ToLeBytes<Bytes=[u8; N]>
 {
@@ -642,4 +653,9 @@ fn test_xor() {
 #[test]
 fn test_xori() {
     test3("xori", rv32i::xori);
+}
+
+#[test]
+fn test_zext_b() {
+    test2_format("andi", rv32i::zext_b, |rd, rs| format!("{}, {}, 0xff", rd, rs));
 }

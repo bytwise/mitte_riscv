@@ -450,6 +450,7 @@ pub trait Emit: EmitSlice {
         emit_sw(rs: Register, base: Register, offset: i16) => rv32i::sw;
         emit_xor(rd: Register, rs1: Register, rs2: Register) => rv32i::xor;
         emit_xori(rd: Register, rs: Register, imm12: i16) => rv32i::xori;
+        emit_zext_b(rd: Register, rs: Register) => rv32i::zext_b;
     }
 }
 

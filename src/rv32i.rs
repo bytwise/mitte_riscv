@@ -400,6 +400,7 @@ pub trait Emit: EmitSlice {
         emit_sw(rs: Register, base: Register, offset: i16) => sw;
         emit_xor(rd: Register, rs1: Register, rs2: Register) => xor;
         emit_xori(rd: Register, rs: Register, imm12: i16) => xori;
+        emit_zext_b(rd: Register, rs: Register) => zext_b;
     }
 }
 
@@ -629,6 +630,11 @@ pub fn not(rd: Register, rs: Register) -> u32 {
 #[inline]
 pub fn neg(rd: Register, rs: Register) -> u32 {
     sub(rd, Register::Zero, rs)
+}
+
+#[inline]
+pub fn zext_b(rd: Register, rs: Register) -> u32 {
+    andi(rd, rs, 0xff)
 }
 
 #[inline]

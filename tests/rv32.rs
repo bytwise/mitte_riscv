@@ -9,11 +9,16 @@ use capstone::arch::{BuildsCapstone, BuildsCapstoneExtraMode};
 use capstone::arch::riscv::{ArchMode, ArchExtraMode};
 
 
+mod common;
+
+use common::{TestCases, ToLeBytes};
+
+
 #[track_caller]
 fn test_disasm<S>(mnemonic: &str, expected: S, code: &[u8]) where S: AsRef<str> {
     println!("code: {:02x?}", code);
     let capstone = Capstone::new().riscv()
-        .mode(ArchMode::RiscV64)
+        .mode(ArchMode::RiscV32)
         .extra_mode([ArchExtraMode::RiscVC].iter().copied())
         .build().unwrap();
     let disasm = match capstone.disasm_all(code, 0x0) {
@@ -34,242 +39,6 @@ fn test_disasm<S>(mnemonic: &str, expected: S, code: &[u8]) where S: AsRef<str> 
             e.as_ref(), i.op_str().unwrap());
     }
     assert_eq!(disasm.len() as usize, 1);
-}
-
-
-trait ToLeBytes {
-    const N: usize;
-    type Bytes;
-    fn to_le_bytes(self) -> Self::Bytes;
-}
-
-impl ToLeBytes for u16 {
-    const N: usize = 2;
-    type Bytes = [u8; 2];
-    fn to_le_bytes(self) -> [u8; 2] {
-        self.to_le_bytes()
-    }
-}
-
-impl ToLeBytes for u32 {
-    const N: usize = 4;
-    type Bytes = [u8; 4];
-    fn to_le_bytes(self) -> [u8; 4] {
-        self.to_le_bytes()
-    }
-}
-
-
-trait TestCases: Sized + Copy + 'static {
-    fn test_cases() -> Vec<(Self, String)>;
-}
-
-impl TestCases for u8 {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (0, "0".into()),
-            (1, "1".into()),
-            (2, "2".into()),
-            (3, "3".into()),
-            (4, "4".into()),
-            (7, "7".into()),
-            (8, "8".into()),
-            (0xf, "0xf".into()),
-            (0x10, "0x10".into()),
-            (0x1f, "0x1f".into()),
-            (0x20, "0x20".into()),
-            (0x3f, "0x3f".into()),
-            (0x40, "0x40".into()),
-            (0x7f, "0x7f".into()),
-            (0x80, "0x80".into()),
-            (0xff, "0xff".into()),
-        ]
-    }
-}
-
-impl TestCases for i8 {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (0, "0".into()),
-            (1, "1".into()),
-            (0x7e, "0x7e".into()),
-            (-1, "-1".into()),
-            (-0x80, "-0x80".into()),
-        ]
-    }
-}
-
-impl TestCases for u16 {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (0, "0".into()),
-            (1, "1".into()),
-            (2, "2".into()),
-            (3, "3".into()),
-            (4, "4".into()),
-            (7, "7".into()),
-            (8, "8".into()),
-            (0xf, "0xf".into()),
-            (0x10, "0x10".into()),
-            (0x1f, "0x1f".into()),
-            (0x20, "0x20".into()),
-            (0x3f, "0x3f".into()),
-            (0x40, "0x40".into()),
-            (0x7f, "0x7f".into()),
-            (0x80, "0x80".into()),
-            (0xff, "0xff".into()),
-            (0x100, "0x100".into()),
-            (0x1ff, "0x1ff".into()),
-            (0x200, "0x200".into()),
-            (0x3ff, "0x3ff".into()),
-            (0x400, "0x400".into()),
-            (0x7ff, "0x7ff".into()),
-            (0x800, "0x800".into()),
-            (0xfff, "0xfff".into()),
-            (0x1000, "0x1000".into()),
-            (0x1fff, "0x1fff".into()),
-            (0x2000, "0x2000".into()),
-            (0x3fff, "0x3fff".into()),
-            (0x4000, "0x4000".into()),
-            (0x7fff, "0x7fff".into()),
-            (0x8000, "0x8000".into()),
-            (0xffff, "0xffff".into()),
-        ]
-    }
-}
-
-impl TestCases for i16 {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (0, "0".into()),
-            (1, "1".into()),
-            (2, "2".into()),
-            (4, "4".into()),
-            (8, "8".into()),
-            (0x10, "0x10".into()),
-            (0x20, "0x20".into()),
-            (0x40, "0x40".into()),
-            (0x7e, "0x7e".into()),
-            (0x80, "0x80".into()),
-            (0xfe, "0xfe".into()),
-            (0x1fe, "0x1fe".into()),
-            (0x3fe, "0x3fe".into()),
-            (0x7fe, "0x7fe".into()),
-            (-0x80, "-0x80".into()),
-            (-0x100, "-0x100".into()),
-            (-0x200, "-0x200".into()),
-            (-0x400, "-0x400".into()),
-            (-0x800,"-0x800".into()),
-        ]
-    }
-}
-
-impl TestCases for u32 {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (0, "0".into()),
-            (1, "1".into()),
-            (2, "2".into()),
-            (3, "3".into()),
-            (4, "4".into()),
-            (7, "7".into()),
-            (8, "8".into()),
-            (0xf, "0xf".into()),
-            (0x10, "0x10".into()),
-            (0x1f, "0x1f".into()),
-            (0x20, "0x20".into()),
-            (0x3f, "0x3f".into()),
-            (0x40, "0x40".into()),
-            (0x7f, "0x7f".into()),
-            (0x80, "0x80".into()),
-            (0xff, "0xff".into()),
-            (0x100, "0x100".into()),
-            (0x1ff, "0x1ff".into()),
-            (0x200, "0x200".into()),
-            (0x3ff, "0x3ff".into()),
-            (0x400, "0x400".into()),
-            (0x7ff, "0x7ff".into()),
-            (0x800, "0x800".into()),
-            (0xfff, "0xfff".into()),
-            (0x1000, "0x1000".into()),
-            (0x1fff, "0x1fff".into()),
-            (0x2000, "0x2000".into()),
-            (0x3fff, "0x3fff".into()),
-            (0x4000, "0x4000".into()),
-            (0x7fff, "0x7fff".into()),
-            (0x8000, "0x8000".into()),
-            (0xffff, "0xffff".into()),
-            (0xf_ffff, "0xfffff".into()),
-        ]
-    }
-}
-
-impl TestCases for i32 {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (0, "0".into()),
-            (0x7e, "0x7e".into()),
-            (0xfe, "0xfe".into()),
-            (0x1fe, "0x1fe".into()),
-            (0x3fe, "0x3fe".into()),
-            (0x7fe, "0x7fe".into()),
-            (0xffe, "0xffe".into()),
-            (0x1ffe, "0x1ffe".into()),
-            (0x3ffe, "0x3ffe".into()),
-            (0x7ffe, "0x7ffe".into()),
-            (0xfffe, "0xfffe".into()),
-            (0x1_fffe, "0x1fffe".into()),
-            (0x3_fffe, "0x3fffe".into()),
-            (0x7_fffe, "0x7fffe".into()),
-            (0xf_fffe, "0xffffe".into()),
-            (-0x80, "-0x80".into()),
-            (-0x100, "-0x100".into()),
-            (-0x200, "-0x200".into()),
-            (-0x400, "-0x400".into()),
-            (-0x800,"-0x800".into()),
-            (-0x1000,"-0x1000".into()),
-            (-0x2000,"-0x2000".into()),
-            (-0x4000,"-0x4000".into()),
-            (-0x8000,"-0x8000".into()),
-            (-0x1_0000,"-0x10000".into()),
-            (-0x2_0000,"-0x20000".into()),
-            (-0x4_0000,"-0x40000".into()),
-            (-0x8_0000,"-0x80000".into()),
-            (-0x10_0000,"-0x100000".into()),
-        ]
-    }
-}
-
-impl TestCases for Register {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (Zero, "zero".into()),
-            (Ra, "ra".into()),
-            (Sp, "sp".into()),
-            (Gp, "gp".into()),
-            (Tp, "tp".into()),
-            (T0, "t0".into()),
-            (S0, "s0".into()),
-            (A0, "a0".into()),
-            (A1, "a1".into()),
-            (T6, "t6".into()),
-        ]
-    }
-}
-
-impl TestCases for CRegister {
-    fn test_cases() -> Vec<(Self, String)> {
-        vec![
-            (CRegister::S0, "s0".into()),
-            (CRegister::S1, "s1".into()),
-            (CRegister::A0, "a0".into()),
-            (CRegister::A1, "a1".into()),
-            (CRegister::A2, "a2".into()),
-            (CRegister::A3, "a3".into()),
-            (CRegister::A4, "a4".into()),
-            (CRegister::A5, "a5".into()),
-        ]
-    }
 }
 
 
@@ -414,18 +183,8 @@ fn test_add() {
 }
 
 #[test]
-fn test_addw() {
-    test3("addw", rv64i::addw);
-}
-
-#[test]
 fn test_addi() {
     test3_filter("addi", rv32i::addi, |_, _, imm12| imm12 != 0);
-}
-
-#[test]
-fn test_addiw() {
-    test3_filter("addiw", rv64i::addiw, |_, _, imm12| imm12 != 0);
 }
 
 #[test]
@@ -506,18 +265,6 @@ fn test_c_addi16sp() {
 }
 
 #[test]
-fn test_c_addiw() {
-    test2_filter("c.addiw", rv64c::addiw, |rd, imm| {
-        rd != Zero && imm >= -0x20 && imm < 0x20
-    });
-}
-
-#[test]
-fn test_c_addw() {
-    test2("c.addw", rv64c::addw);
-}
-
-#[test]
 fn test_c_and() {
     test2("c.and", rv32c::and);
 }
@@ -561,20 +308,6 @@ fn test_c_jalr() {
 #[test]
 fn test_c_jr() {
     test1_filter("c.jr", rv32c::jr, |rs| rs != Zero);
-}
-
-#[test]
-fn test_c_ld() {
-    test_ldst_filter("c.ld", rv64c::ld, |_, _, offset| {
-        offset & 7 == 0 && offset < 0x80
-    });
-}
-
-#[test]
-fn test_c_ldsp() {
-    test2_format_filter("c.ldsp", rv64c::ldsp,
-        |rd, offset| format!("{}, {}(sp)", rd, offset),
-        |rd, offset| rd != Zero && offset & 7 == 0);
 }
 
 #[test]
@@ -624,20 +357,6 @@ fn test_c_or() {
 }
 
 #[test]
-fn test_c_sd() {
-    test_ldst_filter("c.sd", rv64c::sd, |_, _, offset| {
-        offset & 7 == 0 && offset < 0x80
-    });
-}
-
-#[test]
-fn test_c_sdsp() {
-    test2_format_filter("c.sdsp", rv64c::sdsp,
-        |rs, offset| format!("{}, {}(sp)", rs, offset),
-        |_, offset| offset & 7 == 0);
-}
-
-#[test]
 fn test_c_slli() {
     test2_filter("c.slli", rv32c::slli, |rd, shamt| {
         rd != Zero && shamt > 0 && shamt < 0x40
@@ -664,11 +383,6 @@ fn test_c_sub() {
 }
 
 #[test]
-fn test_c_subw() {
-    test2("c.subw", rv64c::subw);
-}
-
-#[test]
 fn test_c_sw() {
     test_ldst_filter("c.sw", rv32c::sw, |_, _, offset| {
         offset & 3 == 0 && offset < 0x80
@@ -688,16 +402,6 @@ fn test_c_xor() {
 }
 
 #[test]
-fn test_ebreak() {
-    test0("ebreak", rv32i::ebreak);
-}
-
-#[test]
-fn test_ecall() {
-    test0("ecall", rv32i::ecall);
-}
-
-#[test]
 fn test_div() {
     test3("div", rv32m::div);
 }
@@ -708,13 +412,13 @@ fn test_divu() {
 }
 
 #[test]
-fn test_divuw() {
-    test3("divuw", rv64m::divuw);
+fn test_ebreak() {
+    test0("ebreak", rv32i::ebreak);
 }
 
 #[test]
-fn test_divw() {
-    test3("divw", rv64m::divw);
+fn test_ecall() {
+    test0("ecall", rv32i::ecall);
 }
 
 #[test]
@@ -754,11 +458,6 @@ fn test_lbu() {
 }
 
 #[test]
-fn test_ld() {
-    test_ldst("ld", rv64i::ld);
-}
-
-#[test]
 fn test_lh() {
     test_ldst("lh", rv32i::lh);
 }
@@ -769,23 +468,13 @@ fn test_lhu() {
 }
 
 #[test]
-fn test_lui_32() {
+fn test_lui() {
     test2("lui", rv32i::lui);
-}
-
-#[test]
-fn test_lui_64() {
-    test2("lui", |rd, offset: u32| rv64i::lui(rd, ((offset as i32) << 12) >> 12));
 }
 
 #[test]
 fn test_lw() {
     test_ldst("lw", rv32i::lw);
-}
-
-#[test]
-fn test_lwu() {
-    test_ldst("lwu", rv64i::lwu);
 }
 
 #[test]
@@ -809,11 +498,6 @@ fn test_mulhu() {
 }
 
 #[test]
-fn test_mulw() {
-    test3("mulw", rv64m::mulw);
-}
-
-#[test]
 fn test_mv() {
     test2_filter("mv", rv32i::mv, |rd, _| rd != Zero);
 }
@@ -831,11 +515,6 @@ fn test_not() {
 #[test]
 fn test_neg() {
     test2("neg", rv32i::neg);
-}
-
-#[test]
-fn test_negw() {
-    test2("negw", rv64i::negw);
 }
 
 #[test]
@@ -859,16 +538,6 @@ fn test_remu() {
 }
 
 #[test]
-fn test_remuw() {
-    test3("remuw", rv64m::remuw);
-}
-
-#[test]
-fn test_remw() {
-    test3("remw", rv64m::remw);
-}
-
-#[test]
 fn test_ret() {
     test0("ret", rv32i::ret);
 }
@@ -876,11 +545,6 @@ fn test_ret() {
 #[test]
 fn test_seqz() {
     test2("seqz", rv32i::seqz);
-}
-
-#[test]
-fn test_sext_w() {
-    test2("sext.w", rv64i::sext_w);
 }
 
 #[test]
@@ -894,23 +558,8 @@ fn test_sll() {
 }
 
 #[test]
-fn test_slli_32() {
+fn test_slli() {
     test3_filter("slli", rv32i::slli, |_, _, shamt| shamt > 0 && shamt < 0x20);
-}
-
-#[test]
-fn test_slli_64() {
-    test3_filter("slli", rv64i::slli, |_, _, shamt| shamt > 0 && shamt < 0x40);
-}
-
-#[test]
-fn test_slliw() {
-    test3_filter("slliw", rv64i::slliw, |_, _, shamt| shamt > 0 && shamt < 0x20);
-}
-
-#[test]
-fn test_sllw() {
-    test3("sllw", rv64i::sllw);
 }
 
 #[test]
@@ -951,18 +600,8 @@ fn test_sra() {
 }
 
 #[test]
-fn test_sraw() {
-    test3("sraw", rv64i::sraw);
-}
-
-#[test]
-fn test_srai_32() {
+fn test_srai() {
     test3_filter("srai", rv32i::srai, |_, _, shamt| shamt > 0 && shamt < 0x20);
-}
-
-#[test]
-fn test_srai_64() {
-    test3_filter("srai", rv64i::srai, |_, _, shamt| shamt > 0 && shamt < 0x40);
 }
 
 #[test]
@@ -971,33 +610,13 @@ fn test_srl() {
 }
 
 #[test]
-fn test_srlw() {
-    test3("srlw", rv64i::srlw);
-}
-
-#[test]
-fn test_srli_32() {
+fn test_srli() {
     test3_filter("srli", rv32i::srli, |_, _, shamt| shamt > 0 && shamt < 0x20);
-}
-
-#[test]
-fn test_srli_64() {
-    test3_filter("srli", rv64i::srli, |_, _, shamt| shamt > 0 && shamt < 0x40);
-}
-
-#[test]
-fn test_srliw() {
-    test3_filter("srliw", rv64i::srliw, |_, _, shamt| shamt > 0 && shamt < 0x20);
 }
 
 #[test]
 fn test_sb() {
     test_ldst("sb", rv32i::sb);
-}
-
-#[test]
-fn test_sd() {
-    test_ldst("sd", rv64i::sd);
 }
 
 #[test]
@@ -1008,11 +627,6 @@ fn test_sh() {
 #[test]
 fn test_sub() {
     test3_filter("sub", rv32i::sub, |_, rs1, _| rs1 != Zero);
-}
-
-#[test]
-fn test_subw() {
-    test3_filter("subw", rv64i::subw, |_, rs1, _| rs1 != Zero);
 }
 
 #[test]

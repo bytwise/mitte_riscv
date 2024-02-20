@@ -410,13 +410,13 @@ impl<E> Emit for E where E: EmitSlice + ?Sized {}
 #[inline]
 pub fn lui(rd: Register, imm20: u32) -> u32 {
     assert!(imm20 < (1 << 20));
-    encode!(i20(imm20), i5(rd as u32), i7(0b0110111))
+    encode!(i20(imm20), i5(rd as u32), i7(LUI))
 }
 
 #[inline]
 pub fn auipc(rd: Register, imm20: i32) -> u32 {
     assert!(is_signed_nbit_integer(20, imm20));
-    encode!(i20(imm20 as u32), i5(rd as u32), i7(0b0010111))
+    encode!(i20(imm20 as u32), i5(rd as u32), i7(AUIPC))
 }
 
 #[inline]
@@ -428,188 +428,191 @@ pub fn jal(rd: Register, offset: i32) -> u32 {
         i1((offset >> 11) as u32),
         i8((offset >> 12) as u32),
         i5(rd as u32),
-        i7(0b1101111)
+        i7(JAL)
     )
 }
 
 #[inline]
 pub fn jalr(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b1100111, funct3: 0b000, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Jalr, funct3: 0b000, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn beq(rs1: Register, rs2: Register, offset: i16) -> u32 {
-    BType { opcode: 0b1100011, funct3: 0b000, rs1, rs2, offset }.encode()
+    BType { opcode: Branch, funct3: 0b000, rs1, rs2, offset }.encode()
 }
 
 #[inline]
 pub fn bne(rs1: Register, rs2: Register, offset: i16) -> u32 {
-    BType { opcode: 0b1100011, funct3: 0b001, rs1, rs2, offset }.encode()
+    BType { opcode: Branch, funct3: 0b001, rs1, rs2, offset }.encode()
 }
 
 #[inline]
 pub fn blt(rs1: Register, rs2: Register, offset: i16) -> u32 {
-    BType { opcode: 0b1100011, funct3: 0b100, rs1, rs2, offset }.encode()
+    BType { opcode: Branch, funct3: 0b100, rs1, rs2, offset }.encode()
 }
 
 #[inline]
 pub fn bge(rs1: Register, rs2: Register, offset: i16) -> u32 {
-    BType { opcode: 0b1100011, funct3: 0b101, rs1, rs2, offset }.encode()
+    BType { opcode: Branch, funct3: 0b101, rs1, rs2, offset }.encode()
 }
 
 #[inline]
 pub fn bltu(rs1: Register, rs2: Register, offset: i16) -> u32 {
-    BType { opcode: 0b1100011, funct3: 0b110, rs1, rs2, offset }.encode()
+    BType { opcode: Branch, funct3: 0b110, rs1, rs2, offset }.encode()
 }
 
 #[inline]
 pub fn bgeu(rs1: Register, rs2: Register, offset: i16) -> u32 {
-    BType { opcode: 0b1100011, funct3: 0b111, rs1, rs2, offset }.encode()
+    BType { opcode: Branch, funct3: 0b111, rs1, rs2, offset }.encode()
 }
 
 #[inline]
 pub fn lb(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b000, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b000, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn lh(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b001, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b001, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn lw(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b010, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b010, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn lbu(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b100, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b100, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn lhu(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b101, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b101, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn sb(rs: Register, base: Register, offset: i16) -> u32 {
-    SType { opcode: 0b0100011, funct3: 0b000, rs, base, imm12: offset }.encode()
+    SType { opcode: Store, funct3: 0b000, rs, base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn sh(rs: Register, base: Register, offset: i16) -> u32 {
-    SType { opcode: 0b0100011, funct3: 0b001, rs, base, imm12: offset }.encode()
+    SType { opcode: Store, funct3: 0b001, rs, base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn sw(rs: Register, base: Register, offset: i16) -> u32 {
-    SType { opcode: 0b0100011, funct3: 0b010, rs, base, imm12: offset }.encode()
+    SType { opcode: Store, funct3: 0b010, rs, base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn addi(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0010011, funct3: 0b000, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm, funct3: 0b000, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn slti(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0010011, funct3: 0b010, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm, funct3: 0b010, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn sltiu(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0010011, funct3: 0b011, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm, funct3: 0b011, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn xori(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0010011, funct3: 0b100, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm, funct3: 0b100, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn ori(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0010011, funct3: 0b110, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm, funct3: 0b110, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn andi(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0010011, funct3: 0b111, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm, funct3: 0b111, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn slli(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i7(0), i5(shamt as u32), i5(rs as u32), i3(0b001), i5(rd as u32), i7(0b0010011))
+    let imm12 = encode!(i7(0), i5(shamt as u32)) as i16;
+    IType { opcode: OpImm, funct3: 0b001, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn srli(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i7(0), i5(shamt as u32), i5(rs as u32), i3(0b101), i5(rd as u32), i7(0b0010011))
+    let imm12 = encode!(i7(0), i5(shamt as u32)) as i16;
+    IType { opcode: OpImm, funct3: 0b101, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn srai(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i7(0b0100000), i5(shamt as u32), i5(rs as u32), i3(0b101), i5(rd as u32), i7(0b0010011))
+    let imm12 = encode!(i7(0b0100000), i5(shamt as u32)) as i16;
+    IType { opcode: OpImm, funct3: 0b101, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn add(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b000, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b000, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn sub(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b000, funct7: 0b0100000, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b000, funct7: 0b0100000, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn sll(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b001, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b001, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn slt(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b010, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b010, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn sltu(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b011, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b011, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn xor(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b100, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b100, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn srl(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b101, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b101, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn sra(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b101, funct7: 0b0100000, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b101, funct7: 0b0100000, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn or(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b110, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b110, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn and(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b111, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b111, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn ecall() -> u32 {
-    encode!(i12(0), i5(0), i3(0), i5(0), i7(0b1110011))
+    IType { opcode: System, imm12: 0, ..IType::null() }.encode()
 }
 
 #[inline]
 pub fn ebreak() -> u32 {
-    encode!(i12(1), i5(0), i3(0), i5(0), i7(0b1110011))
+    IType { opcode: System, imm12: 1, ..IType::null() }.encode()
 }
 
 #[inline]

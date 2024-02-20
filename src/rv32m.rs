@@ -24,40 +24,40 @@ impl<E> Emit for E where E: EmitSlice + ?Sized {}
 
 #[inline]
 pub fn mul(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b000, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b000, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn mulh(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b001, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b001, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn mulhsu(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b010, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b010, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn mulhu(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b011, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b011, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn div(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b100, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b100, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn divu(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b101, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b101, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn rem(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b110, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b110, funct7: 1, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn remu(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0110011, funct3: 0b111, funct7: 1, rd, rs1, rs2 }.encode()
+    RType { opcode: Op, funct3: 0b111, funct7: 1, rd, rs1, rs2 }.encode()
 }

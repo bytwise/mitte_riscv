@@ -2,7 +2,6 @@ use std::ops::Range;
 
 use mitte_core::Error;
 
-use crate::types::*;
 use crate::encoding::*;
 
 
@@ -118,7 +117,7 @@ fn encode_jump_offset(offset: i32) -> u32 {
 
 #[inline]
 fn encode_branch_offset(offset: i16) -> u32 {
-    BType { opcode: 0, funct3: 0, rs1: Register::Zero, rs2: Register::Zero, offset }.encode()
+    BType { offset, ..BType::null() }.encode()
 }
 
 #[inline]
@@ -128,15 +127,15 @@ fn encode_auipc_offset(offset: i32) -> u32 {
 
 #[inline]
 fn encode_load_offset(offset: i16) -> u32 {
-    IType { opcode: 0, funct3: 0, rd: Register::Zero, rs: Register::Zero, imm12: offset }.encode()
+    IType { imm12: offset, ..IType::null() }.encode()
 }
 
 #[inline]
 fn encode_c_jump_offset(offset: i16) -> u16 {
-    CjType { op: 0, funct3: 0, offset }.encode()
+    CjType { offset, ..CjType::null() }.encode()
 }
 
 #[inline]
 fn encode_c_branch_offset(offset: i16) -> u16 {
-    CbType { op: 0, funct3: 0, rs: CRegister::S0, offset }.encode()
+    CbType { offset, ..CbType::null() }.encode()
 }

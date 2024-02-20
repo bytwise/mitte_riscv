@@ -460,82 +460,88 @@ impl<E> Emit for E where E: EmitSlice + ?Sized {}
 #[inline]
 pub fn lui(rd: Register, imm20: i32) -> u32 {
     assert!(is_signed_nbit_integer(20, imm20));
-    encode!(i20(imm20 as u32), i5(rd as u32), i7(0b0110111))
+    encode!(i20(imm20 as u32), i5(rd as u32), i7(LUI))
 }
 
 #[inline]
 pub fn lwu(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b110, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b110, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn ld(rd: Register, base: Register, offset: i16) -> u32 {
-    IType { opcode: 0b0000011, funct3: 0b011, rd, rs: base, imm12: offset }.encode()
+    IType { opcode: Load, funct3: 0b011, rd, rs: base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn sd(rs: Register, base: Register, offset: i16) -> u32 {
-    SType { opcode: 0b0100011, funct3: 0b011, rs, base, imm12: offset }.encode()
+    SType { opcode: Store, funct3: 0b011, rs, base, imm12: offset }.encode()
 }
 
 #[inline]
 pub fn slli(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i6(0), i6(shamt as u32), i5(rs as u32), i3(0b001), i5(rd as u32), i7(0b0010011))
+    let imm12 = encode!(i6(0), i6(shamt as u32)) as i16;
+    IType { opcode: OpImm, funct3: 0b001, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn srli(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i6(0), i6(shamt as u32), i5(rs as u32), i3(0b101), i5(rd as u32), i7(0b0010011))
+    let imm12 = encode!(i6(0), i6(shamt as u32)) as i16;
+    IType { opcode: OpImm, funct3: 0b101, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn srai(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i6(0b010000), i6(shamt as u32), i5(rs as u32), i3(0b101), i5(rd as u32), i7(0b0010011))
+    let imm12 = encode!(i6(0b010000), i6(shamt as u32)) as i16;
+    IType { opcode: OpImm, funct3: 0b101, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn addiw(rd: Register, rs: Register, imm12: i16) -> u32 {
-    IType { opcode: 0b0011011, funct3: 0b000, rd, rs, imm12 }.encode()
+    IType { opcode: OpImm32, funct3: 0b000, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn slliw(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i7(0), i5(shamt as u32), i5(rs as u32), i3(0b001), i5(rd as u32), i7(0b0011011))
+    let imm12 = encode!(i7(0), i5(shamt as u32)) as i16;
+    IType { opcode: OpImm32, funct3: 0b001, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn srliw(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i7(0), i5(shamt as u32), i5(rs as u32), i3(0b101), i5(rd as u32), i7(0b0011011))
+    let imm12 = encode!(i7(0), i5(shamt as u32)) as i16;
+    IType { opcode: OpImm32, funct3: 0b101, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn sraiw(rd: Register, rs: Register, shamt: u8) -> u32 {
-    encode!(i7(0b0100000), i5(shamt as u32), i5(rs as u32), i3(0b101), i5(rd as u32), i7(0b0011011))
+    let imm12 = encode!(i7(0b0100000), i5(shamt as u32)) as i16;
+    IType { opcode: OpImm32, funct3: 0b101, rd, rs, imm12 }.encode()
 }
 
 #[inline]
 pub fn addw(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0111011, funct3: 0b000, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op32, funct3: 0b000, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn subw(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0111011, funct3: 0b000, funct7: 0b0100000, rd, rs1, rs2 }.encode()
+    RType { opcode: Op32, funct3: 0b000, funct7: 0b0100000, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn sllw(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0111011, funct3: 0b001, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op32, funct3: 0b001, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn srlw(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0111011, funct3: 0b101, funct7: 0, rd, rs1, rs2 }.encode()
+    RType { opcode: Op32, funct3: 0b101, funct7: 0, rd, rs1, rs2 }.encode()
 }
 
 #[inline]
 pub fn sraw(rd: Register, rs1: Register, rs2: Register) -> u32 {
-    RType { opcode: 0b0111011, funct3: 0b101, funct7: 0b0100000, rd, rs1, rs2 }.encode()
+    RType { opcode: Op32, funct3: 0b101, funct7: 0b0100000, rd, rs1, rs2 }.encode()
 }
 
 #[inline]

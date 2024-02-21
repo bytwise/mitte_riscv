@@ -75,12 +75,18 @@ pub trait Emit: EmitSlice {
         emit_c_sub(rd: CRegister, rs: CRegister) => sub;
         emit_c_sw(rd: CRegister, base: CRegister, offset: u8) => sw;
         emit_c_swsp(rs: Register, offset: u8) => swsp;
+        emit_c_unimp() => unimp;
         emit_c_xor(rd: CRegister, rs: CRegister) => xor;
     }
 }
 
 impl<E> Emit for E where E: EmitSlice + ?Sized {}
 
+
+#[inline]
+pub fn unimp() -> u16 {
+    0
+}
 
 #[inline]
 pub fn addi4spn(rd: CRegister, imm: u16) -> u16 {

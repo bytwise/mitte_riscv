@@ -470,6 +470,11 @@ fn test_c_swsp() {
 }
 
 #[test]
+fn test_c_unimp() {
+    test0("c.unimp", rv32c::unimp);
+}
+
+#[test]
 fn test_c_xor() {
     test2("c.xor", rv32c::xor);
 }
@@ -790,6 +795,11 @@ fn test_subw() {
 #[test]
 fn test_sw() {
     test_ldst("sw", rv32i::sw);
+}
+
+#[test]
+fn test_unimp() {
+    test0("unimp", rv32i::unimp);
 }
 
 #[test]

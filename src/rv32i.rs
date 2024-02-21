@@ -374,14 +374,16 @@ pub trait Emit: EmitSlice {
         emit_lui(rd: Register, imm20: u32) => lui;
         emit_lw(rd: Register, base: Register, offset: i16) => lw;
         emit_mv(rd: Register, rs: Register) => mv;
+        emit_neg(rd: Register, rs: Register) => neg;
         emit_nop() => nop;
         emit_not(rd: Register, rs: Register) => not;
-        emit_neg(rd: Register, rs: Register) => neg;
         emit_or(rd: Register, rs1: Register, rs2: Register) => or;
         emit_ori(rd: Register, rs: Register, imm12: i16) => ori;
         emit_ret() => ret;
+        emit_sb(rs: Register, base: Register, offset: i16) => sb;
         emit_seqz(rd: Register, rs: Register) => seqz;
         emit_sgtz(rd: Register, rs: Register) => sgtz;
+        emit_sh(rs: Register, base: Register, offset: i16) => sh;
         emit_sll(rd: Register, rs1: Register, rs2: Register) => sll;
         emit_slli(rd: Register, rs: Register, shamt: u8) => slli;
         emit_slt(rd: Register, rs1: Register, rs2: Register) => slt;
@@ -394,10 +396,9 @@ pub trait Emit: EmitSlice {
         emit_srai(rd: Register, rs: Register, shamt: u8) => srai;
         emit_srl(rd: Register, rs1: Register, rs2: Register) => srl;
         emit_srli(rd: Register, rs: Register, shamt: u8) => srli;
-        emit_sb(rs: Register, base: Register, offset: i16) => sb;
-        emit_sh(rs: Register, base: Register, offset: i16) => sh;
         emit_sub(rd: Register, rs1: Register, rs2: Register) => sub;
         emit_sw(rs: Register, base: Register, offset: i16) => sw;
+        emit_unimp() => unimp;
         emit_xor(rd: Register, rs1: Register, rs2: Register) => xor;
         emit_xori(rd: Register, rs: Register, imm12: i16) => xori;
         emit_zext_b(rd: Register, rs: Register) => zext_b;
@@ -613,6 +614,11 @@ pub fn ecall() -> u32 {
 #[inline]
 pub fn ebreak() -> u32 {
     IType { opcode: System, imm12: 1, ..IType::null() }.encode()
+}
+
+#[inline]
+pub fn unimp() -> u32 {
+    IType { opcode: System, funct3: 0b001, imm12: 0xfc00_u16 as i16, ..IType::null() }.encode()
 }
 
 #[inline]

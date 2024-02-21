@@ -88,6 +88,7 @@ pub trait Emit: EmitSlice {
         emit_c_sub(rd: CRegister, rs: CRegister) => rv32c::sub;
         emit_c_sw(rd: CRegister, base: CRegister, offset: u8) => rv32c::sw;
         emit_c_swsp(rs: Register, offset: u8) => rv32c::swsp;
+        emit_c_unimp() => rv32c::unimp;
         emit_c_xor(rd: CRegister, rs: CRegister) => rv32c::xor;
     }
 }

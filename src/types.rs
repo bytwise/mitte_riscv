@@ -15,11 +15,73 @@ pub enum Register {
     T3, T4, T5, T6,
 }
 
+impl Register {
+    #[inline]
+    pub fn from_index(index: usize) -> Option<Register> {
+        use Register::*;
+        match index {
+            0 => Some(Zero),
+            1 => Some(Ra),
+            2 => Some(Sp),
+            3 => Some(Gp),
+            4 => Some(Tp),
+            5 => Some(T0),
+            6 => Some(T1),
+            7 => Some(T2),
+            8 => Some(S0),
+            9 => Some(S1),
+            10 => Some(A0),
+            11 => Some(A1),
+            12 => Some(A2),
+            13 => Some(A3),
+            14 => Some(A4),
+            15 => Some(A5),
+            16 => Some(A6),
+            17 => Some(A7),
+            18 => Some(S2),
+            19 => Some(S3),
+            20 => Some(S4),
+            21 => Some(S5),
+            22 => Some(S6),
+            23 => Some(S7),
+            24 => Some(S8),
+            25 => Some(S9),
+            26 => Some(S10),
+            27 => Some(S11),
+            28 => Some(T3),
+            29 => Some(T4),
+            30 => Some(T5),
+            31 => Some(T6),
+            _ => None,
+        }
+    }
+}
+
+
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum CRegister {
     S0, S1, A0, A1,
     A2, A3, A4, A5,
 }
+
+impl CRegister {
+    #[inline]
+    pub fn from_c_index(index: usize) -> Option<CRegister> {
+        use CRegister::*;
+        match index {
+            0 => Some(S0),
+            1 => Some(S1),
+            2 => Some(A0),
+            3 => Some(A1),
+            4 => Some(A2),
+            5 => Some(A3),
+            6 => Some(A4),
+            7 => Some(A5),
+            _ => None,
+        }
+    }
+}
+
 
 impl From<CRegister> for Register {
     #[inline]
@@ -66,3 +128,22 @@ impl fmt::Display for CRegisterTryFromError {
 }
 
 impl Error for CRegisterTryFromError {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_register_from_index() {
+        for i in 0..32 {
+            assert_eq!(i, Register::from_index(i).unwrap() as usize);
+        }
+    }
+
+    #[test]
+    fn test_cregister_from_c_index() {
+        for i in 0..8 {
+            assert_eq!(i, CRegister::from_c_index(i).unwrap() as usize);
+        }
+    }
+}

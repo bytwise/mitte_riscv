@@ -10,6 +10,7 @@ pub enum FixupKind {
     Branch,
     CJump,
     CBranch,
+    JumpFar,
     Load,
 }
 
@@ -73,15 +74,18 @@ impl<Emit> mitte_core::FixupKind<Emit> for FixupKind
                 buffer.copy_from_slice(&self.apply_fixup_16(instruction, offset).to_le_bytes());
                 Ok(())
             }
+            FixupKind::JumpFar |
             FixupKind::Load => {
                 assert!(is_signed_nbit_integer(32, offset));
                 let (upper, lower) = to_i20_i12_imm_pair(offset as i32);
+
                 let auipc_buffer = emit.get_mut_array::<4>(range.start)?;
                 let auipc = u32::from_le_bytes(*auipc_buffer);
                 auipc_buffer.copy_from_slice(&apply_auipc_fixup(auipc, upper).to_le_bytes());
-                let load_buffer = emit.get_mut_array::<4>(range.start + 4)?;
-                let load = u32::from_le_bytes(*load_buffer);
-                load_buffer.copy_from_slice(&apply_load_fixup(load, lower).to_le_bytes());
+
+                let itype_buffer = emit.get_mut_array::<4>(range.start + 4)?;
+                let itype = u32::from_le_bytes(*itype_buffer);
+                itype_buffer.copy_from_slice(&apply_itype_fixup(itype, lower).to_le_bytes());
                 Ok(())
             }
         }
@@ -97,9 +101,9 @@ fn apply_auipc_fixup(instruction: u32, offset: i32) -> u32 {
 }
 
 #[inline]
-fn apply_load_fixup(instruction: u32, offset: i16) -> u32 {
-    let mask = encode_load_offset(-1);
-    let offset = encode_load_offset(offset);
+fn apply_itype_fixup(instruction: u32, offset: i16) -> u32 {
+    let mask = encode_itype_offset(-1);
+    let offset = encode_itype_offset(offset);
     (instruction & !mask) | offset
 }
 
@@ -126,7 +130,7 @@ fn encode_auipc_offset(offset: i32) -> u32 {
 }
 
 #[inline]
-fn encode_load_offset(offset: i16) -> u32 {
+fn encode_itype_offset(offset: i16) -> u32 {
     IType { imm12: offset, ..IType::null() }.encode()
 }
 

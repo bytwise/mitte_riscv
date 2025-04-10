@@ -262,6 +262,30 @@ pub trait Emit: EmitSlice {
         )
     }
 
+    fn emit_call_label<Label>(&mut self, rd: Register, rt: Register, label: &mut Label)
+        -> Result<(), Self::Error>
+    where Self: mitte_core::Emit,
+          Label: mitte_core::Label<Self, FixupKind>
+    {
+        self.emit_branch(
+            label,
+            FixupKind::JumpFar,
+            |e, offset| {
+                let (upper, lower) = to_i20_i12_imm_pair(offset as i32);
+                e.emit_auipc(rt, upper)?;
+                e.emit_jalr(rd, rt, lower)
+            },
+        )
+    }
+
+    fn emit_jump_label<Label>(&mut self, rt: Register, label: &mut Label)
+        -> Result<(), Self::Error>
+    where Self: mitte_core::Emit,
+          Label: mitte_core::Label<Self, FixupKind>
+    {
+        self.emit_call_label(Register::Zero, rt, label)
+    }
+
     fn emit_lb_label<Label>(&mut self, rd: Register, label: &mut Label)
         -> Result<(), Self::Error>
     where Self: mitte_core::Emit,

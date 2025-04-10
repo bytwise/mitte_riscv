@@ -367,6 +367,7 @@ pub trait Emit: EmitSlice {
         emit_j(offset: i32) => j;
         emit_jal(rd: Register, offset: i32) => jal;
         emit_jalr(rd: Register, base: Register, offset: i16) => jalr;
+        emit_jr(rs: Register) => jr;
         emit_lb(rd: Register, base: Register, offset: i16) => lb;
         emit_lbu(rd: Register, base: Register, offset: i16) => lbu;
         emit_lh(rd: Register, base: Register, offset: i16) => lh;

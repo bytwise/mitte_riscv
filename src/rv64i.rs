@@ -422,6 +422,7 @@ pub trait Emit: EmitSlice {
         emit_j(offset: i32) => rv32i::j;
         emit_jal(rd: Register, offset: i32) => rv32i::jal;
         emit_jalr(rd: Register, base: Register, offset: i16) => rv32i::jalr;
+        emit_jr(rs: Register) => rv32i::jr;
         emit_lb(rd: Register, base: Register, offset: i16) => rv32i::lb;
         emit_lbu(rd: Register, base: Register, offset: i16) => rv32i::lbu;
         emit_lh(rd: Register, base: Register, offset: i16) => rv32i::lh;
